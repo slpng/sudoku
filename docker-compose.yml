@@ -1,0 +1,42 @@
+services:
+  prs:
+    build: ./prs
+    ports: 
+      - 5000:5000
+    volumes:
+      - ./prs:/app
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+  web:
+    build: ./web
+    depends_on:
+      - db
+    ports:
+      - 3001:3000
+      - 8002:8002
+    environment:
+      RECOGNIZER_URL: 'http://prs:5000'
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+      WEB_SESSION_SECRET: ${WEB_SESSION_SECRET}
+    volumes:
+      - ./web:/code
+      - /code/node_modules/
+      - /code/build/
+      - /code/public/build/
+  #   # stdin_open: true # docker run -i
+  #   # tty: true        # docker run -t
+  db:
+    image: postgres:15.3
+    ports:
+      - ${PUBLISHED_DB_PORT}:5432
+    volumes:
+      - ./docker-data/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}

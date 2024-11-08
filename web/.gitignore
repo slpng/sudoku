@@ -1,0 +1,7 @@
+todo.md
+
+node_modules/
+build/
+public/build/
+prisma/migrations/
+.cache

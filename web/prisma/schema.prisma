@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  reports      Report[]
+}
+
+model Matrix {
+  id     Int      @id @default(autoincrement())
+  json   Json
+  report Report[]
+}
+
+model Report {
+  id        String     @id
+  type      ReportType
+  user      User       @relation(fields: [userId], references: [id])
+  userId    Int
+  matrix    Matrix?    @relation(fields: [matrixId], references: [id])
+  matrixId  Int?
+  createdAt DateTime   @default(now())
+}
+
+enum ReportType {
+  failed
+  successful
+}
